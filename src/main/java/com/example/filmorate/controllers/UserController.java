@@ -50,8 +50,8 @@ public class UserController {
                 max = i;
             }
         }
-        user.setId(max+1);
-        users.put(max+1, user);
+        user.setId(max + 1);
+        users.put(max + 1, user);
         log.info("Пользователь добавлен");
     }
 }
