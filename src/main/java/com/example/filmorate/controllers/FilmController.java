@@ -12,7 +12,7 @@ import java.util.HashMap;
 @Slf4j
 @RestController
 public class FilmController {
-    private final LocalDate beginning = LocalDate.of(1895, 12, 28);
+    private static final LocalDate BEGINNING = LocalDate.of(1895, 12, 28);
     private HashMap<Integer, Film> films = new HashMap<>();
 
     @PostMapping("/films")
@@ -42,7 +42,7 @@ public class FilmController {
     }
 
     private boolean validate(Film film) {
-        if (film.getReleaseDate().isAfter(beginning)) {
+        if (film.getReleaseDate().isAfter(BEGINNING)) {
             return true;
         } else {
             log.info("Фильм не прошел валидацию");
