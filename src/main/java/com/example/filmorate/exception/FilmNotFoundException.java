@@ -1,4 +1,4 @@
-package com.example.filmorate.controllers.exception;
+package com.example.filmorate.exception;
 
 public class FilmNotFoundException extends Throwable {
 }

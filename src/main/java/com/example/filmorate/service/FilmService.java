@@ -1,9 +1,10 @@
 package com.example.filmorate.service;
 
+import com.example.filmorate.exception.FilmNotFoundException;
+import com.example.filmorate.exception.ValidationException;
 import com.example.filmorate.model.Film;
 import com.example.filmorate.storage.FilmStorage;
 import com.example.filmorate.storage.UserStorage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,24 +14,27 @@ import java.util.List;
 @Service
 public class FilmService {
     private static final LocalDate BEGINNING = LocalDate.of(1895, 12, 28);
-    @Autowired
-    FilmStorage filmStorage;
-    @Autowired
-    UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
-    public Film create(Film film) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+    }
+
+    public Film create(Film film) throws ValidationException {
         if (validate(film)) {
             return filmStorage.create(film);
         } else {
-            return null;
+            throw new ValidationException();
         }
     }
 
-    public Film update(Film film) {
+    public Film update(Film film) throws FilmNotFoundException {
         if (validate(film) && filmStorage.getFilmById(film.getId()) != null) {
             return filmStorage.update(film);
         } else {
-            return null;
+            throw new FilmNotFoundException();
         }
     }
 
@@ -38,27 +42,28 @@ public class FilmService {
         return filmStorage.getFilms();
     }
 
-    public Film getFilmById(int id) {
-        return filmStorage.getFilmById(id);
-    }
-
-    public boolean deleteLike(int id, int userId) {
-        Film film = filmStorage.getFilmById(id);
-        if (film != null && userStorage.getUserById(userId) != null) {
-            filmStorage.deleteLike(film, userId);
-            return true;
+    public Film getFilmById(int id) throws FilmNotFoundException {
+        if (filmStorage.getFilmById(id) != null) {
+            return filmStorage.getFilmById(id);
         } else {
-            return false;
+            throw new FilmNotFoundException();
         }
     }
 
-    public boolean putLike(int id, int userId) {
+    public void deleteLike(int id, int userId) throws FilmNotFoundException {
         Film film = filmStorage.getFilmById(id);
         if (film != null && userStorage.getUserById(userId) != null) {
-            filmStorage.putLike(film, userId);
-            return true;
+            filmStorage.deleteLike(film, userId);
         } else {
-            return false;
+            throw new FilmNotFoundException();
+        }
+    }
+
+    public void putLike(int id, int userId) throws FilmNotFoundException {
+        if (filmStorage.getFilmById(id) != null && userStorage.getUserById(userId) != null) {
+            filmStorage.putLike(filmStorage.getFilmById(id), userId);
+        } else {
+            throw new FilmNotFoundException();
         }
     }
 

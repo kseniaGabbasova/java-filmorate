@@ -1,18 +1,21 @@
 package com.example.filmorate.storage;
 
 import com.example.filmorate.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    protected HashMap<Integer, User> users = new HashMap<>();
+    private HashMap<Integer, User> users = new HashMap<>();
 
 
     public User create(User user) {
         user.setFriends(new HashSet<>());
         save(user);
+        log.info("Добавлен пользователь: " + user);
         return user;
     }
 
@@ -20,6 +23,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (users.containsKey(user.getId())) {
             user.setFriends(users.get(user.getId()).getFriends());
             users.replace(user.getId(), user);
+            log.info("Обновлен пользователь: " + user);
             return user;
         } else {
             return null;
@@ -33,6 +37,7 @@ public class InMemoryUserStorage implements UserStorage {
     public void addFriend(User user, User otherUser) {
         user.addFriend(otherUser.getId());
         otherUser.addFriend(user.getId());
+        log.info("Пользователи добавлены в друзья друг другу: " + user + otherUser);
     }
 
     public User getUserById(int id) {
@@ -43,6 +48,7 @@ public class InMemoryUserStorage implements UserStorage {
     public void deleteFriend(User user, User friend) {
         user.getFriends().remove(friend.getId());
         friend.getFriends().remove(user.getId());
+        log.info("Пользователи удалены из друзей друг друга: " + user + friend);
     }
 
     public ArrayList<User> getFriends(User user) {
