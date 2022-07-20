@@ -14,7 +14,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film create(Film film) {
         if (save(film)) {
             film.setWhoLiked(new HashSet<>());
-            log.info("Добавлен фильм: " + film);
+            log.info("Добавлен фильм: {}", film);
             return film;
         } else {
             return null;
@@ -24,7 +24,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film update(Film film) {
         film.setWhoLiked(films.get(film.getId()).getWhoLiked());
         films.replace(film.getId(), film);
-        log.info("Фильм обновлен: " + film);
+        log.info("Фильм обновлен: {}", film);
         return film;
     }
 
@@ -38,12 +38,12 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     public void putLike(Film film, int userId) {
         film.getWhoLiked().add(userId);
-        log.info("Добавлен лайк к фильму: " + film);
+        log.info("Добавлен лайк к фильму: {}", film);
     }
 
     public void deleteLike(Film film, int userId) {
         film.getWhoLiked().remove(userId);
-        log.info("Удален лайк к фильму: " + film);
+        log.info("Удален лайк к фильму: {}", film);
     }
 
 
