@@ -1,72 +1,56 @@
 package com.example.filmorate.controllers;
 
+import com.example.filmorate.exception.FilmNotFoundException;
+import com.example.filmorate.exception.ValidationException;
 import com.example.filmorate.model.Film;
-import lombok.extern.slf4j.Slf4j;
+import com.example.filmorate.service.FilmService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 
-@Slf4j
 @RestController
 public class FilmController {
-    private static final LocalDate BEGINNING = LocalDate.of(1895, 12, 28);
-    private HashMap<Integer, Film> films = new HashMap<>();
+    private final FilmService filmService;
+
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @PostMapping("/films")
-    protected Film create(@Validated @RequestBody Film film) {
-        if (save(film)) {
-            return film;
-        } else {
-            throw new ValidationException();
-        }
+    protected Film create(@Validated @RequestBody Film film) throws ValidationException {
+        return filmService.create(film);
+
     }
 
     @PutMapping("/films")
-    private Film update(@Validated @RequestBody Film film) {
-        if (films.containsKey(film.getId()) && validate(film)) {
-            films.replace(film.getId(), film);
-            log.info("Фильм обновлен");
-            return film;
-        } else {
-            log.warn("Фильма с айди не существует/не прошел валидацию");
-            throw new ValidationException();
-        }
+    private Film update(@Validated @RequestBody Film film) throws FilmNotFoundException {
+        return filmService.update(film);
     }
 
     @GetMapping("/films")
     private Collection<Film> getFilms() {
-        return films.values();
+        return filmService.getFilms();
     }
 
-    private boolean validate(Film film) {
-        if (film.getReleaseDate().isAfter(BEGINNING)) {
-            return true;
-        } else {
-            log.info("Фильм не прошел валидацию");
-            return false;
-        }
+    @PutMapping("/films/{id}/like/{userId}")
+    private void putLike(@PathVariable int id, @PathVariable int userId) throws FilmNotFoundException {
+        filmService.putLike(id, userId);
     }
 
-    private boolean save(Film film) {
-        if (validate(film)) {
-            int max = 0;
-            if (films.isEmpty()) {
-                film.setId(1);
-            }
-            for (int i : films.keySet()) {
-                if (i > max) {
-                    max = i;
-                }
-            }
-            film.setId(max + 1);
-            films.put(max + 1, film);
-            log.info("Фильм добавлен");
-            return true;
-        } else {
-            throw new ValidationException();
-        }
+    @DeleteMapping("/films/{id}/like/{userId}")
+    private void deleteLike(@PathVariable int id, @PathVariable int userId) throws FilmNotFoundException {
+        filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/films/popular")
+    private List<Film> getByPopularity(@RequestParam(required = false, defaultValue = "10") Integer count) {
+        return filmService.getByPopularity(count);
+    }
+
+    @GetMapping("/films/{id}")
+    private Film getFilmById(@PathVariable int id) throws FilmNotFoundException {
+        return filmService.getFilmById(id);
     }
 }

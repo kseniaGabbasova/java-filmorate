@@ -1,57 +1,60 @@
 package com.example.filmorate.controllers;
 
+import com.example.filmorate.exception.UserNotFoundException;
 import com.example.filmorate.model.User;
-import lombok.extern.slf4j.Slf4j;
+import com.example.filmorate.service.UserService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
-@Slf4j
 @RestController
 public class UserController {
-    private HashMap<Integer, User> users = new HashMap<>();
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping("/users")
     private User create(@Validated @RequestBody User user) {
-        save(user);
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping("/users")
-    private User update(@Validated @RequestBody User user) {
-        if (users.containsKey(user.getId())) {
-            users.replace(user.getId(), user);
-            log.info("Пользователь обновлен");
-            return user;
-        } else {
-            log.warn("Такого айди пользователя не существует");
-            throw new ValidationException();
-        }
+    private User update(@Validated @RequestBody User user) throws UserNotFoundException {
+        return userService.update(user);
     }
 
     @GetMapping("/users")
     private Collection<User> getUsers() {
-        return users.values();
+        return userService.getUsers();
     }
 
-    private void save(User user) {
-        if (user.getName().isEmpty()) {
-            user.setName(user.getLogin());
-            log.info("Имя пользователя пустое");
-        }
-        int max = 0;
-        if (users.isEmpty()) {
-            user.setId(1);
-        }
-        for (int i : users.keySet()) {
-            if (i > max) {
-                max = i;
-            }
-        }
-        user.setId(max + 1);
-        users.put(max + 1, user);
-        log.info("Пользователь добавлен");
+    @PutMapping("/users/{id}/friends/{friendId}")
+    private void addFriend(@PathVariable int id, @PathVariable int friendId) throws UserNotFoundException {
+        userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    private void deleteFriend(@PathVariable int id, @PathVariable int friendId) throws UserNotFoundException {
+        userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    private ArrayList<User> getFriends(@PathVariable int id) throws UserNotFoundException {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    private ArrayList<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId)
+            throws UserNotFoundException {
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    @GetMapping("/users/{id}")
+    private User getUserById(@PathVariable int id) throws UserNotFoundException {
+        return userService.getUserById(id);
     }
 }
