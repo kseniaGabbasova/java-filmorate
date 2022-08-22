@@ -1,6 +1,7 @@
 package com.example.filmorate.controllers;
 
 import com.example.filmorate.exception.FilmNotFoundException;
+import com.example.filmorate.exception.UserNotFoundException;
 import com.example.filmorate.exception.ValidationException;
 import com.example.filmorate.model.Film;
 import com.example.filmorate.service.FilmService;
@@ -35,12 +36,12 @@ public class FilmController {
     }
 
     @PutMapping("/films/{id}/like/{userId}")
-    private void putLike(@PathVariable int id, @PathVariable int userId) throws FilmNotFoundException {
+    private void putLike(@PathVariable int id, @PathVariable int userId) throws FilmNotFoundException, UserNotFoundException {
         filmService.putLike(id, userId);
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
-    private void deleteLike(@PathVariable int id, @PathVariable int userId) throws FilmNotFoundException {
+    private void deleteLike(@PathVariable int id, @PathVariable int userId) throws UserNotFoundException, FilmNotFoundException {
         filmService.deleteLike(id, userId);
     }
 

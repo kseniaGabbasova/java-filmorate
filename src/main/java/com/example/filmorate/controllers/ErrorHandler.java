@@ -1,6 +1,7 @@
 package com.example.filmorate.controllers;
 
 import com.example.filmorate.exception.FilmNotFoundException;
+import com.example.filmorate.exception.NotFoundException;
 import com.example.filmorate.exception.UserNotFoundException;
 import com.example.filmorate.exception.ValidationException;
 import org.springframework.http.HttpStatus;
@@ -29,5 +30,11 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleFilmNotFoundException(final FilmNotFoundException e) {
         return Map.of("Фильм не найден", "Введите существующий айди");
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleNotFoundException(final NotFoundException e) {
+        return Map.of("Параметр не найден", "Измените параметр");
     }
 }
