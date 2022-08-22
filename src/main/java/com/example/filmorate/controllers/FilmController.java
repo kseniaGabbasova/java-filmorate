@@ -36,12 +36,14 @@ public class FilmController {
     }
 
     @PutMapping("/films/{id}/like/{userId}")
-    private void putLike(@PathVariable int id, @PathVariable int userId) throws FilmNotFoundException, UserNotFoundException {
+    private void putLike(@PathVariable int id, @PathVariable int userId) throws FilmNotFoundException,
+            UserNotFoundException {
         filmService.putLike(id, userId);
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
-    private void deleteLike(@PathVariable int id, @PathVariable int userId) throws UserNotFoundException, FilmNotFoundException {
+    private void deleteLike(@PathVariable int id, @PathVariable int userId) throws UserNotFoundException,
+            FilmNotFoundException {
         filmService.deleteLike(id, userId);
     }
 
