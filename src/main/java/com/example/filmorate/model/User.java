@@ -1,13 +1,11 @@
 package com.example.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -15,6 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 @EqualsAndHashCode
 @ToString
+@Builder
 public class User {
     private Integer id;
     @NotNull
@@ -25,10 +24,4 @@ public class User {
     private String name;
     @Past(message = "День рождения не может быть в будущем")
     private LocalDate birthday;
-    @JsonIgnore
-    private Set<Integer> friends;
-
-    public void addFriend(Integer id) {
-        this.friends.add(id);
-    }
 }

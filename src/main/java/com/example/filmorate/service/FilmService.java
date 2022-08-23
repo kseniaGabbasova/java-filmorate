@@ -1,6 +1,7 @@
 package com.example.filmorate.service;
 
 import com.example.filmorate.exception.FilmNotFoundException;
+import com.example.filmorate.exception.UserNotFoundException;
 import com.example.filmorate.exception.ValidationException;
 import com.example.filmorate.model.Film;
 import com.example.filmorate.storage.FilmStorage;
@@ -16,15 +17,21 @@ public class FilmService {
     private static final LocalDate BEGINNING = LocalDate.of(1895, 12, 28);
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final GenreService genreService;
 
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage, GenreService genreService) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.genreService = genreService;
     }
 
     public Film create(Film film) throws ValidationException {
         if (validate(film)) {
-            return filmStorage.create(film);
+            filmStorage.create(film);
+            if (film.getGenres() != null) {
+                genreService.updateForFilm(film.getId(), film.getGenres());
+            }
+            return film;
         } else {
             throw new ValidationException();
         }
@@ -32,6 +39,9 @@ public class FilmService {
 
     public Film update(Film film) throws FilmNotFoundException {
         if (validate(film) && filmStorage.getFilmById(film.getId()) != null) {
+            if (film.getGenres() != null) {
+                genreService.updateForFilm(film.getId(), film.getGenres());
+            }
             return filmStorage.update(film);
         } else {
             throw new FilmNotFoundException();
@@ -50,7 +60,7 @@ public class FilmService {
         }
     }
 
-    public void deleteLike(int id, int userId) throws FilmNotFoundException {
+    public void deleteLike(int id, int userId) throws FilmNotFoundException, UserNotFoundException {
         Film film = filmStorage.getFilmById(id);
         if (film != null && userStorage.getUserById(userId) != null) {
             filmStorage.deleteLike(film, userId);
@@ -59,7 +69,7 @@ public class FilmService {
         }
     }
 
-    public void putLike(int id, int userId) throws FilmNotFoundException {
+    public void putLike(int id, int userId) throws FilmNotFoundException, UserNotFoundException {
         if (filmStorage.getFilmById(id) != null && userStorage.getUserById(userId) != null) {
             filmStorage.putLike(filmStorage.getFilmById(id), userId);
         } else {

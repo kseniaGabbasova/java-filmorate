@@ -61,10 +61,13 @@ public class UserService {
         }
     }
 
-    public ArrayList<User> getFriends(int id) throws UserNotFoundException {
-        User user = userStorage.getUserById(id);
-        if (user != null) {
-            return userStorage.getFriends(user);
+    public ArrayList<User> getFriends(int id) throws UserNotFoundException {//TODO
+        if (userStorage.getUserById(id) != null) {
+            ArrayList<User> friendList = new ArrayList<>();
+            for (Integer i : userStorage.getFriends(id)) {
+                friendList.add(userStorage.getUserById(i));
+            }
+            return friendList;
         } else {
             throw new UserNotFoundException();
         }
